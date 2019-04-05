@@ -36,7 +36,7 @@ class Scope implements OTScope
      * @param OTSpan $wrapped
      * @param bool $finishSpanOnClose
      */
-    public function __construct(ScopeManager $scopeManager, OTSpan $wrapped, bool $finishSpanOnClose)
+    public function __construct(ScopeManager $scopeManager, OTSpan $wrapped, $finishSpanOnClose)
     {
         $this->scopeManager = $scopeManager;
         $this->wrapped = $wrapped;

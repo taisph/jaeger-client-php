@@ -111,7 +111,7 @@ class SpanContext implements OTSpanContext
         return $this->debugId;
     }
 
-    public function isDebugIdContainerOnly(): bool
+    public function isDebugIdContainerOnly()
     {
         return ($this->traceId === null) && ($this->debugId !== null);
     }

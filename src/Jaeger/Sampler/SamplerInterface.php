@@ -18,7 +18,7 @@ interface SamplerInterface
      * @param string $operation The operation name set on the span.
      * @return array
      */
-    public function isSampled(string $traceId, string $operation);
+    public function isSampled($traceId, $operation);
 
     /**
      * Release any resources used by the sampler.

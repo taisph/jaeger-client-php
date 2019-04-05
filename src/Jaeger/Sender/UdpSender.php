@@ -61,12 +61,12 @@ class UdpSender
      */
     public function __construct(
         AgentClient $client,
-        int $maxBufferLength,
+        $maxBufferLength,
         LoggerInterface $logger = null
     ) {
         $this->client = $client;
         $this->maxBufferLength = $maxBufferLength;
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger = $logger ?: new NullLogger();
     }
 
     /**
@@ -80,7 +80,7 @@ class UdpSender
     /**
      * @return int the number of flushed spans
      */
-    public function flush(): int
+    public function flush()
     {
         $count = count($this->spans);
         if ($count === 0) {
@@ -121,7 +121,7 @@ class UdpSender
      * @param JaegerSpan[] $spans
      * @return ThriftSpan[]
      */
-    private function makeZipkinBatch(array $spans): array
+    private function makeZipkinBatch(array $spans)
     {
         /** @var ThriftSpan[] */
         $zipkinSpans = [];
@@ -143,7 +143,7 @@ class UdpSender
             $zipkinSpan = new ThriftSpan([
                 'name' => $span->getOperationName(),
                 'id' => $span->getContext()->getSpanId(),
-                'parent_id' => $span->getContext()->getParentId() ?? null,
+                'parent_id' => $span->getContext()->getParentId() ?: null,
                 'trace_id' => $span->getContext()->getTraceId(),
                 'annotations' => $this->createAnnotations($span, $endpoint),
                 'binary_annotations' => $span->getTags(),
@@ -164,9 +164,9 @@ class UdpSender
             $isClient = $span->isRpcClient();
 
             $host = $this->makeEndpoint(
-                $span->peer['ipv4'] ?? 0,
-                $span->peer['port'] ?? 0,
-                $span->peer['service_name'] ?? ''
+                $span->peer['ipv4'] ?: 0,
+                $span->peer['port'] ?: 0,
+                $span->peer['service_name'] ?: ''
             );
 
             $key = ($isClient) ? self::SERVER_ADDR : self::CLIENT_ADDR;
@@ -175,7 +175,7 @@ class UdpSender
             $span->tags[$key] = $peer;
         } else {
             $tag = $this->makeLocalComponentTag(
-                $span->getComponent() ?? $span->getTracer()->getServiceName(),
+                $span->getComponent() ?: $span->getTracer()->getServiceName(),
                 $endpoint
             );
 
@@ -183,7 +183,7 @@ class UdpSender
         }
     }
 
-    private function makeLocalComponentTag(string $componentName, Endpoint $endpoint): BinaryAnnotation
+    private function makeLocalComponentTag($componentName, Endpoint $endpoint)
     {
         return new BinaryAnnotation([
             'key' => "lc",
@@ -193,7 +193,7 @@ class UdpSender
         ]);
     }
 
-    private function makeEndpoint(string $ipv4, int $port, string $serviceName): Endpoint
+    private function makeEndpoint($ipv4, $port, $serviceName)
     {
         $ipv4 = $this->ipv4ToInt($ipv4);
 
@@ -204,7 +204,7 @@ class UdpSender
         ]);
     }
 
-    private function ipv4ToInt(string $ipv4): int
+    private function ipv4ToInt($ipv4)
     {
         if ($ipv4 == 'localhost') {
             $ipv4 = '127.0.0.1';
@@ -221,7 +221,7 @@ class UdpSender
 
     // Used for Zipkin binary annotations like CA/SA (client/server address).
     // They are modeled as Boolean type with '0x01' as the value.
-    private function makePeerAddressTag(string $key, Endpoint $host): BinaryAnnotation
+    private function makePeerAddressTag($key, Endpoint $host)
     {
         return new BinaryAnnotation([
             "key" => $key,
@@ -238,7 +238,7 @@ class UdpSender
      *
      * @return array
      */
-    private function chunkSplit(array $thrifts): array
+    private function chunkSplit(array $thrifts)
     {
         $actualBufferSize = $this->zipkinBatchOverheadLength;
         $chunkId = 0;
@@ -273,7 +273,7 @@ class UdpSender
      *
      * @return int
      */
-    private function getBufferLength($thrift): int
+    private function getBufferLength($thrift)
     {
         $memoryBuffer = new TMemoryBuffer();
 
@@ -288,7 +288,7 @@ class UdpSender
      *
      * @return array|Annotation[]
      */
-    private function createAnnotations(JaegerSpan $span, Endpoint $endpoint): array
+    private function createAnnotations(JaegerSpan $span, Endpoint $endpoint)
     {
         $annotations = [];
 

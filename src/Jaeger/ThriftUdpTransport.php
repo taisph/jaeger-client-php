@@ -32,12 +32,12 @@ class ThriftUdpTransport extends TTransport
      * @param int $port
      * @param LoggerInterface $logger
      */
-    public function __construct(string $host, int $port, LoggerInterface $logger = null)
+    public function __construct($host, $port, LoggerInterface $logger = null)
     {
         $this->host = $host;
         $this->port = $port;
         $this->socket = @socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger = $logger ?: new NullLogger();
     }
 
     /**

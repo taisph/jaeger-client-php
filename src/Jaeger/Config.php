@@ -67,7 +67,7 @@ class Config
 
         $this->setConfigFromEnv();
 
-        $this->serviceName = $this->config['service_name'] ?? $serviceName;
+        $this->serviceName = array_key_exists('service_name', $this->config) ? $this->config['service_name'] : $serviceName;
         if ($this->serviceName === null) {
             throw new Exception('service_name required in the config or param.');
         }
@@ -102,7 +102,7 @@ class Config
      * @param SamplerInterface $sampler
      * @return Tracer
      */
-    public function createTracer(ReporterInterface $reporter, SamplerInterface $sampler): Tracer
+    public function createTracer(ReporterInterface $reporter, SamplerInterface $sampler)
     {
         return new Tracer(
             $this->serviceName,
@@ -121,7 +121,7 @@ class Config
     /**
      * @return string
      */
-    public function getServiceName(): string
+    public function getServiceName()
     {
         return $this->serviceName;
     }
@@ -138,15 +138,15 @@ class Config
     /**
      * @return bool
      */
-    private function getLogging(): bool
+    private function getLogging()
     {
-        return (bool)($this->config['logging'] ?? false);
+        return (bool)($this->config['logging'] ?: false);
     }
 
     /**
      * @return ReporterInterface
      */
-    private function getReporter(): ReporterInterface
+    private function getReporter()
     {
         $channel = $this->getLocalAgentSender();
         $reporter = new RemoteReporter($channel);
@@ -163,30 +163,30 @@ class Config
      * @throws \Psr\Cache\InvalidArgumentException
      * @throws Exception
      */
-    private function getSampler(): SamplerInterface
+    private function getSampler()
     {
-        $samplerConfig = $this->config['sampler'] ?? [];
-        $samplerType = $samplerConfig['type'] ?? null;
-        $samplerParam = $samplerConfig['param'] ?? null;
+        $samplerConfig = $this->config['sampler'] ?: [];
+        $samplerType = $samplerConfig['type'] ?: null;
+        $samplerParam = $samplerConfig['param'] ?: null;
 
         if ($samplerType === null || $samplerType === SAMPLER_TYPE_REMOTE) {
             // todo: implement remote sampling
             return new ProbabilisticSampler((float)$samplerParam);
         } elseif ($samplerType === SAMPLER_TYPE_CONST) {
-            return new ConstSampler($samplerParam ?? false);
+            return new ConstSampler($samplerParam ?: false);
         } elseif ($samplerType === SAMPLER_TYPE_PROBABILISTIC) {
             return new ProbabilisticSampler((float)$samplerParam);
         } elseif ($samplerType === SAMPLER_TYPE_RATE_LIMITING) {
             if (!$this->cache) {
                 throw new Exception('You cannot use RateLimitingSampler without cache component');
             }
-            $cacheConfig = $samplerConfig['cache'] ?? [];
+            $cacheConfig = $samplerConfig['cache'] ?: [];
             return new RateLimitingSampler(
-                $samplerParam ?? 0,
+                $samplerParam ?: 0,
                 new RateLimiter(
                     $this->cache,
-                    $cacheConfig['currentBalanceKey'] ?? 'rate.currentBalance',
-                    $cacheConfig['lastTickKey'] ?? 'rate.lastTick'
+                    $cacheConfig['currentBalanceKey'] ?: 'rate.currentBalance',
+                    $cacheConfig['lastTickKey'] ?: 'rate.lastTick'
                 )
             );
         }
@@ -196,7 +196,7 @@ class Config
     /**
      * @return UdpSender
      */
-    private function getLocalAgentSender(): UdpSender
+    private function getLocalAgentSender()
     {
         $udp = new ThriftUdpTransport(
             $this->getLocalAgentReportingHost(),
@@ -224,57 +224,57 @@ class Config
      *
      * @return int
      */
-    private function getMaxBufferLength(): int
+    private function getMaxBufferLength()
     {
-        return (int)($this->config['max_buffer_length'] ?? 64000);
+        return (int)($this->config['max_buffer_length'] ?: 64000);
     }
 
     /**
      * @return string
      */
-    private function getLocalAgentReportingHost(): string
+    private function getLocalAgentReportingHost()
     {
-        return $this->getLocalAgentGroup()['reporting_host'] ?? DEFAULT_REPORTING_HOST;
+        return $this->getLocalAgentGroup()['reporting_host'] ?: DEFAULT_REPORTING_HOST;
     }
 
     /**
      * @return int
      */
-    private function getLocalAgentReportingPort(): int
+    private function getLocalAgentReportingPort()
     {
-        return (int)($this->getLocalAgentGroup()['reporting_port'] ?? DEFAULT_REPORTING_PORT);
+        return (int)($this->getLocalAgentGroup()['reporting_port'] ?: DEFAULT_REPORTING_PORT);
     }
 
     /**
      * @return array
      */
-    private function getLocalAgentGroup(): array
+    private function getLocalAgentGroup()
     {
-        return $this->config['local_agent'] ?? [];
+        return $this->config['local_agent'] ?: [];
     }
 
     /**
      * @return string
      */
-    private function getTraceIdHeader(): string
+    private function getTraceIdHeader()
     {
-        return $this->config['trace_id_header'] ?? TRACE_ID_HEADER;
+        return $this->config['trace_id_header'] ?: TRACE_ID_HEADER;
     }
 
     /**
      * @return string
      */
-    private function getBaggageHeaderPrefix(): string
+    private function getBaggageHeaderPrefix()
     {
-        return $this->config['baggage_header_prefix'] ?? BAGGAGE_HEADER_PREFIX;
+        return $this->config['baggage_header_prefix'] ?: BAGGAGE_HEADER_PREFIX;
     }
 
     /**
      * @return string
      */
-    private function getDebugIdHeaderKey(): string
+    private function getDebugIdHeaderKey()
     {
-        return $this->config['debug_id_header_key'] ?? DEBUG_ID_HEADER_KEY;
+        return $this->config['debug_id_header_key'] ?: DEBUG_ID_HEADER_KEY;
     }
 
     /**

@@ -43,7 +43,7 @@ class RateLimitingSampler implements SamplerInterface
      * @param string $operation The operation name set on the span.
      * @return array
      */
-    public function isSampled(string $traceId = '', string $operation = '')
+    public function isSampled($traceId = '', $operation = '')
     {
         return [$this->rateLimiter->checkCredit(1.0), $this->tags];
     }

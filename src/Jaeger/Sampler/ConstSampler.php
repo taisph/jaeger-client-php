@@ -32,7 +32,7 @@ class ConstSampler implements SamplerInterface
      *
      * @param bool $decision
      */
-    public function __construct(bool $decision = true)
+    public function __construct($decision = true)
     {
         $this->tags = [
             SAMPLER_TYPE_TAG_KEY => SAMPLER_TYPE_CONST,
@@ -49,7 +49,7 @@ class ConstSampler implements SamplerInterface
      * @param string $operation The operation name set on the span.
      * @return array
      */
-    public function isSampled(string $traceId, string $operation = ''): array
+    public function isSampled($traceId, $operation = '')
     {
         return [$this->decision, $this->tags];
     }

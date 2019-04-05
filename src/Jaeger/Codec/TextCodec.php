@@ -26,10 +26,10 @@ class TextCodec implements CodecInterface
      * @param string $debugIdHeader
      */
     public function __construct(
-        bool $urlEncoding = false,
-        string $traceIdHeader = TRACE_ID_HEADER,
-        string $baggageHeaderPrefix = BAGGAGE_HEADER_PREFIX,
-        string $debugIdHeader = DEBUG_ID_HEADER_KEY
+        $urlEncoding = false,
+        $traceIdHeader = TRACE_ID_HEADER,
+        $baggageHeaderPrefix = BAGGAGE_HEADER_PREFIX,
+        $debugIdHeader = DEBUG_ID_HEADER_KEY
     ) {
         $this->urlEncoding = $urlEncoding;
         $this->traceIdHeader = str_replace('_', '-', strtolower($traceIdHeader));
@@ -144,7 +144,7 @@ class TextCodec implements CodecInterface
      */
     private function spanContextToString($traceId, $spanId, $parentId, $flags)
     {
-        $parentId = $parentId ?? 0;
+        $parentId = $parentId ?: 0;
         return sprintf('%x:%x:%x:%x', $traceId, $spanId, $parentId, $flags);
     }
 
@@ -156,7 +156,7 @@ class TextCodec implements CodecInterface
      *
      * @throws Exception
      */
-    private function spanContextFromString($value): array
+    private function spanContextFromString($value)
     {
         $parts = explode(':', $value);
 
@@ -179,7 +179,7 @@ class TextCodec implements CodecInterface
      * @param string $needle
      * @return bool
      */
-    private function startsWith(string $haystack, string $needle): bool
+    private function startsWith($haystack, $needle)
     {
         return substr($haystack, 0, strlen($needle)) == $needle;
     }

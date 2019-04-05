@@ -42,7 +42,7 @@ class ProbabilisticSampler implements SamplerInterface
      * @param float $rate
      * @throws OutOfBoundsException
      */
-    public function __construct(float $rate)
+    public function __construct($rate)
     {
         $this->tags = [
             SAMPLER_TYPE_TAG_KEY => SAMPLER_TYPE_PROBABILISTIC,
@@ -69,7 +69,7 @@ class ProbabilisticSampler implements SamplerInterface
      * @param string $operation The operation name set on the span.
      * @return array
      */
-    public function isSampled(string $traceId, string $operation = ''): array
+    public function isSampled($traceId, $operation = '')
     {
         return [($traceId < $this->boundary), $this->tags];
     }

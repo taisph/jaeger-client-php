@@ -104,8 +104,8 @@ class Tracer implements OTTracer
         $this->sampler = $sampler;
         $this->oneSpanPerRpc = $oneSpanPerRpc;
 
-        $this->logger = $logger ?? new NullLogger();
-        $this->scopeManager = $scopeManager ?? new ScopeManager();
+        $this->logger = $logger ?: new NullLogger();
+        $this->scopeManager = $scopeManager ?: new ScopeManager();
 
         $this->debugIdHeader = $debugIdHeader;
 
@@ -153,7 +153,7 @@ class Tracer implements OTTracer
         $parent = $this->getParentSpanContext($options);
         $tags = $options->getTags();
 
-        $rpcServer = ($tags[SPAN_KIND] ?? null) == SPAN_KIND_RPC_SERVER;
+        $rpcServer = (array_key_exists(SPAN_KIND, $tags) ? $tags[SPAN_KIND] : null) == SPAN_KIND_RPC_SERVER;
 
         if ($parent == null || $parent->isDebugIdContainerOnly()) {
             $traceId = $this->randomId();
@@ -165,14 +165,14 @@ class Tracer implements OTTracer
                 list($sampled, $samplerTags) = $this->sampler->isSampled($traceId, $operationName);
                 if ($sampled) {
                     $flags = SAMPLED_FLAG;
-                    $tags = $tags ?? [];
+                    $tags = $tags ?: [];
                     foreach ($samplerTags as $key => $value) {
                         $tags[$key] = $value;
                     }
                 }
             } else {  // have debug id
                 $flags = SAMPLED_FLAG | DEBUG_FLAG;
-                $tags = $tags ?? [];
+                $tags = $tags ?: [];
                 $tags[$this->debugIdHeader] = $parent->getDebugId();
             }
         } else {
@@ -202,7 +202,7 @@ class Tracer implements OTTracer
             $spanContext,
             $this,
             $operationName,
-            $tags ?? [],
+            $tags ?: [],
             $options->getStartTime()
         );
 
@@ -225,7 +225,7 @@ class Tracer implements OTTracer
     public function inject(OTSpanContext $spanContext, $format, &$carrier)
     {
         if ($spanContext instanceof SpanContext) {
-            $codec = $this->codecs[$format] ?? null;
+            $codec = $this->codecs[$format] ?: null;
 
             if ($codec == null) {
                 throw UnsupportedFormat::forFormat(is_scalar($format) ? $format : gettype($format));
@@ -254,7 +254,7 @@ class Tracer implements OTTracer
      */
     public function extract($format, $carrier)
     {
-        $codec = $this->codecs[$format] ?? null;
+        $codec = $this->codecs[$format] ?: null;
 
         if ($codec == null) {
             throw UnsupportedFormat::forFormat(is_scalar($format) ? $format : gettype($format));
@@ -346,7 +346,7 @@ class Tracer implements OTTracer
      * @return string
      * @throws Exception
      */
-    private function randomId(): string
+    private function randomId()
     {
         return (string) random_int(0, PHP_INT_MAX);
     }

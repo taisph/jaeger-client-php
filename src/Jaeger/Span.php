@@ -85,7 +85,7 @@ class Span implements OTSpan
     public function __construct(
         SpanContext $context,
         Tracer $tracer,
-        string $operationName,
+        $operationName,
         array $tags = [],
         $startTime = null
     ) {
@@ -112,7 +112,7 @@ class Span implements OTSpan
      * @param int|float|DateTime|null $time
      * @return int
      */
-    protected function microTime($time): int
+    protected function microTime($time)
     {
         if ($time === null) {
             return $this->timestampMicro();
@@ -139,7 +139,7 @@ class Span implements OTSpan
     /**
      * @return Tracer
      */
-    public function getTracer(): Tracer
+    public function getTracer()
     {
         return $this->tracer;
     }
@@ -147,7 +147,7 @@ class Span implements OTSpan
     /**
      * @return bool
      */
-    public function isDebug(): bool
+    public function isDebug()
     {
         return $this->debug;
     }
@@ -155,7 +155,7 @@ class Span implements OTSpan
     /**
      * @return int
      */
-    public function getStartTime(): int
+    public function getStartTime()
     {
         return $this->startTime;
     }
@@ -171,7 +171,7 @@ class Span implements OTSpan
     /**
      * @return string
      */
-    public function getOperationName(): string
+    public function getOperationName()
     {
         return $this->operationName;
     }
@@ -217,7 +217,7 @@ class Span implements OTSpan
      *
      * @return bool
      */
-    public function isSampled(): bool
+    public function isSampled()
     {
         $context = $this->getContext();
 
@@ -252,7 +252,7 @@ class Span implements OTSpan
     public function setTag($key, $value)
     {
         if ($this->isSampled()) {
-            $special = self::SPECIAL_TAGS[$key] ?? null;
+            $special = array_key_exists($key, self::SPECIAL_TAGS) ? self::SPECIAL_TAGS[$key] : null;
             $handled = false;
 
             if ($special !== null && is_callable([$this, $special])) {
@@ -285,7 +285,7 @@ class Span implements OTSpan
      * @param string $value
      * @return bool
      */
-    private function setComponent($value): bool
+    private function setComponent($value)
     {
         $this->component = $value;
         return true;
@@ -294,7 +294,7 @@ class Span implements OTSpan
     /**
      * @return bool
      */
-    private function setSpanKind($value): bool
+    private function setSpanKind($value)
     {
         if ($value === null || $value === SPAN_KIND_RPC_CLIENT || $value === SPAN_KIND_RPC_SERVER) {
             $this->kind = $value;
@@ -306,7 +306,7 @@ class Span implements OTSpan
     /**
      * @return bool
      */
-    private function setPeerPort($value): bool
+    private function setPeerPort($value)
     {
         if ($this->peer === null) {
             $this->peer = ['port' => $value];
@@ -319,7 +319,7 @@ class Span implements OTSpan
     /**
      * @return bool
      */
-    private function setPeerHostIpv4($value): bool
+    private function setPeerHostIpv4($value)
     {
         if ($this->peer === null) {
             $this->peer = ['ipv4' => $value];
@@ -332,7 +332,7 @@ class Span implements OTSpan
     /**
      * @return bool
      */
-    private function setPeerService($value): bool
+    private function setPeerService($value)
     {
         if ($this->peer === null) {
             $this->peer = ['service_name' => $value];
@@ -345,7 +345,7 @@ class Span implements OTSpan
     /**
      * @return bool
      */
-    public function isRpc(): bool
+    public function isRpc()
     {
         return $this->kind == SPAN_KIND_RPC_CLIENT || $this->kind == SPAN_KIND_RPC_SERVER;
     }
@@ -353,7 +353,7 @@ class Span implements OTSpan
     /**
      * @return bool
      */
-    public function isRpcClient(): bool
+    public function isRpcClient()
     {
         return $this->kind == SPAN_KIND_RPC_CLIENT;
     }
@@ -388,7 +388,7 @@ class Span implements OTSpan
      *
      * @return array
      */
-    public function getLogs(): array
+    public function getLogs()
     {
         return $this->logs;
     }
@@ -412,7 +412,7 @@ class Span implements OTSpan
     /**
      * @return array
      */
-    public function getTags(): array
+    public function getTags()
     {
         return $this->tags;
     }
@@ -420,7 +420,7 @@ class Span implements OTSpan
     /**
      * @return int
      */
-    private function timestampMicro(): int
+    private function timestampMicro()
     {
         return round(microtime(true) * 1000000);
     }
@@ -430,7 +430,7 @@ class Span implements OTSpan
      * @param string $value
      * @return BinaryAnnotation
      */
-    private function makeStringTag(string $key, string $value): BinaryAnnotation
+    private function makeStringTag($key, $value)
     {
         if (strlen($value) > 1024) {
             $value = substr($value, 0, 1024);
